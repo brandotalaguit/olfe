@@ -2,7 +2,7 @@
 
 class Student extends CI_Controller {
 
-	function __construct() 
+	function __construct()
 	{
         parent::__construct();
 
@@ -38,7 +38,7 @@ class Student extends CI_Controller {
 
 	    		$current_sysem = $this->main_model->get_current_sysem();
 	    		$studevaluation = $this->db->where(array(
-													'SyId' => $current_sysem->SyId, 
+													'SyId' => $current_sysem->SyId,
 													'SemId' => $current_sysem->SemId,
 													'StudNo' => $valid_email->StudNo,
 													'IsEvaluated' => 1
@@ -59,7 +59,7 @@ class Student extends CI_Controller {
     			$this->db->insert('tblstudverificationcode', array(
 														'StudNo' => $valid_email->StudNo,
 														'verificationcode' => $random_verification_code,
-														'SyId' => $current_sysem->SyId, 
+														'SyId' => $current_sysem->SyId,
 														'SemId' => $current_sysem->SemId,
 														'created_at' => date('Y-m-d H:i:s'),
 													));
@@ -130,7 +130,7 @@ class Student extends CI_Controller {
 		    'smtp_port' => 465,
 		    'smtp_user' => $current_email,
 		    'smtp_pass' => $current_pass,
-		    'mailtype'  => 'html', 
+		    'mailtype'  => 'html',
 		    'charset'   => 'iso-8859-1'
 		);
 
@@ -141,14 +141,14 @@ class Student extends CI_Controller {
 		$this->email->from('itc_support@umak.edu.ph', 'UMAK-ITC SUPPORT');
         $this->email->to($email);
 		$this->email->subject('Activation Code');
-        $this->email->message($msg);	
+        $this->email->message($msg);
 
-		        
+
 		$result = $this->email->send();
 
 		$this->db->query('update tblumakemailaccount set sentcount = sentcount+1 where umakemailaccount_id = '.$umak_email->umakemailaccount_id);
 
-        // echo $this->email->print_debugger();	  
+        // echo $this->email->print_debugger();
  	}
 
     public function _validate_student()
@@ -188,6 +188,12 @@ class Student extends CI_Controller {
 			return FALSE;
 		}
 
+		if($result['type'] == "HSU")
+		{
+			$this->form_validation->set_message('_validate_student', 'Your Schedule will Start on September 11,2017 until September 23,2017');
+			return FALSE;
+		}
+
     	$is_barred = $this->main_model->is_barred_stud($StudNo, $result['type']);
 
     	if(count($is_barred))
@@ -200,7 +206,7 @@ class Student extends CI_Controller {
     	/*NOTE FOR IMPROVEMENT :
 		 	--> Validate if CMAT is printed
     	*/
-		
+
 		$result['SyId'] = $sysem->SyId;
 		$result['SemId'] = $sysem->SemId;
 		$result['SemCode'] = $sysem->SemCode;
@@ -233,7 +239,7 @@ class Student extends CI_Controller {
     	{
 
     		$this->db->where(array(
-						'SyId' => $current_sysem->SyId, 
+						'SyId' => $current_sysem->SyId,
 						'SemId' => $current_sysem->SemId,
 						'StudNo' => $StudNo,
 					));
@@ -242,12 +248,12 @@ class Student extends CI_Controller {
     		if( ! count($has_started_evaluation))
     		{
 	    		$studeval = array(
-					'SyId' => $current_sysem->SyId, 
+					'SyId' => $current_sysem->SyId,
 					'SemId' => $current_sysem->SemId,
 					'StudNo' => $StudNo,
 					'is_actived' => 1,
 					'Hold' => 1,
-					'created_at' => date('Y-m-d H:i:s'), 
+					'created_at' => date('Y-m-d H:i:s'),
 				);
 				$this->db->insert('tblstudevaluation',$studeval);
     		}
@@ -260,14 +266,14 @@ class Student extends CI_Controller {
 
     	$result = $this->db->select('verificationcode')
     					   ->where(array(
-							'SyId' => $current_sysem->SyId, 
+							'SyId' => $current_sysem->SyId,
 							'SemId' => $current_sysem->SemId,
 							'StudNo' => $StudNo,
 						 ))->get('tblstudverificationcode')->result();
 
     	$verification_code_arr = array();
 
-    	foreach ($result as $row) 
+    	foreach ($result as $row)
     	{
     		$verification_code_arr[] = $row->verificationcode;
     	}
@@ -370,39 +376,39 @@ class Student extends CI_Controller {
 			return redirect('student/current_load','refresh');
 		}
 
-    	if ( ! count($sched) || $sched_id == NULL) 
+    	if ( ! count($sched) || $sched_id == NULL)
 		{
 			$this->session->set_flashdata('error', 'Unable to process your request. The schedule you\'re accessing does not exist.');
 			return redirect('student/current_load','refresh');
 		}
 
 		$studsched = $this->main_model->get_studsched($cfn, $StudNo);
-		if ( ! count($studsched))  
+		if ( ! count($studsched))
 		{
 			$this->session->set_flashdata('error', 'Unable to process your request. The schedule you\'re accessing is not included in your COR(Certificate of Registration).');
 			return redirect('student/current_load','refresh');
 		}
 
 		$course_evaluated = $this->db->where(array(
-												'StudNo' => $StudNo, 
-												'cfn' => $cfn, 
-												'SyId' => $current_sysem->SyId, 
+												'StudNo' => $StudNo,
+												'cfn' => $cfn,
+												'SyId' => $current_sysem->SyId,
 												'SemId' => $current_sysem->SemId,
 											))->get('tblstudcourseeval')->row();
 
 		if(!count($course_evaluated))
 		{
 			$course_eval = array(
-				'StudNo' => $StudNo, 
-				'cfn' => $cfn, 
-				'SyId' => $current_sysem->SyId, 
+				'StudNo' => $StudNo,
+				'cfn' => $cfn,
+				'SyId' => $current_sysem->SyId,
 				'SemId' => $current_sysem->SemId,
-				'created_at' => date('Y-m-d H:i:s'), 
+				'created_at' => date('Y-m-d H:i:s'),
 			);
 			$this->db->insert('tblstudcourseeval',$course_eval);
 		}
 
-		// fetch data 
+		// fetch data
 		$data['profinfo'] = $this->main_model->get_profinfo($cfn, $faculty_id);
 		$data['rating_scale'] = $this->main_model->get_ratingscale();
 
@@ -458,7 +464,7 @@ class Student extends CI_Controller {
 			{
 				$current_studanswer = $this->main_model->get_studanswer($category[$current_category]->category_id, $StudNo, $cfn);
 
-				foreach ($_POST as $question_id => $rating) 
+				foreach ($_POST as $question_id => $rating)
 				{
 					$studanswer['studno'] = $StudNo;
 					$studanswer['question_id'] = $question_id;
@@ -511,7 +517,7 @@ class Student extends CI_Controller {
     			return FALSE;
     		}
 		}
-    	
+
 		return $this->load->view('student/questionaire', $data);
     }
 
@@ -578,9 +584,9 @@ class Student extends CI_Controller {
 		{
 
 			$condition = array(
-								'StudNo' => $StudNo, 
-								'cfn' => $cfn, 
-								'SyId' => $curr_sy, 
+								'StudNo' => $StudNo,
+								'cfn' => $cfn,
+								'SyId' => $curr_sy,
 								'SemId' => $curr_sem,
 						   );
 
@@ -591,8 +597,8 @@ class Student extends CI_Controller {
 			if( ! empty($_POST['studfeedback']) )
 			{
 				$feedback = array(
-					'studcourseeval_id' => $studcourseeval_id, 
-					'feedback' => $this->input->post('studfeedback'), 
+					'studcourseeval_id' => $studcourseeval_id,
+					'feedback' => $this->input->post('studfeedback'),
 				);
 				$this->db->insert('tblfeedback',$feedback);
 			}
@@ -607,7 +613,7 @@ class Student extends CI_Controller {
 				);
 
 				$this->db->where(array(
-						'SyId' => $curr_sy, 
+						'SyId' => $curr_sy,
 						'SemId' => $curr_sem,
 						'StudNo' => $StudNo,
 					));
@@ -619,7 +625,7 @@ class Student extends CI_Controller {
 			redirect('student/current_load','refresh');
 		}
 
-		if ( ! count($sched)) 
+		if ( ! count($sched))
 		{
 			$this->session->set_flashdata('error', 'Unable to process your request. The schedule you\'re accessing does not exist.');
 			return redirect('student/current_load','refresh');
@@ -627,13 +633,13 @@ class Student extends CI_Controller {
 
 
 		$studsched = $this->main_model->get_studsched($cfn, $StudNo);
-		if ( ! count($studsched))  
+		if ( ! count($studsched))
 		{
 			$this->session->set_flashdata('error', 'Unable to process your request. The schedule you\'re accessing is not included in your COR(Certificate of Registration).');
 			return redirect('student/current_load','refresh');
 		}
 
-		// fetch data 
+		// fetch data
 		$data['profinfo'] = $this->main_model->get_profinfo($cfn, $faculty_id);
 		$data['evaluation_summary'] = $this->main_model->get_evaluation_summary($cfn, $StudNo);
 
@@ -671,11 +677,11 @@ class Student extends CI_Controller {
 				$current_sysem = $this->main_model->get_current_sysem();
 		    	$StudNo = $this->session->userdata('StudNo');
 				$data = array(
-					'reason' => $_POST['reason'], 
-					'StudNo' => $StudNo, 
-					'SyId' => $current_sysem->SyId, 
-					'SemId' => $current_sysem->SemId, 
-					'created_at' => date('Y-m-d H:i:s'), 
+					'reason' => $_POST['reason'],
+					'StudNo' => $StudNo,
+					'SyId' => $current_sysem->SyId,
+					'SemId' => $current_sysem->SemId,
+					'created_at' => date('Y-m-d H:i:s'),
 				);
 
 				$this->db->insert('tblincevalreason',$data);

@@ -38,7 +38,7 @@ class Main_Model extends CI_Model {
 		$column = array(
 			'faculty_id',
 			'cfn',
-			'remark',
+			'remark'
 		);
 
 		$param = array(
@@ -53,6 +53,7 @@ class Main_Model extends CI_Model {
 			$column = array(
 				'prof_id as faculty_id',
 				'CFN as cfn',
+				'remark'
 			);
 
 			$param = array(
@@ -223,7 +224,6 @@ class Main_Model extends CI_Model {
 						      ->join($this->integrated .'.tblcourse as course', 'course.CourseId = sched.subject_id', 'LEFT')
 						      ->join('tblstudexcluded as studexclude', 'studexclude.cfn = studsched.Cfn and studexclude.StudNo = studsched.StudNo and studexclude.is_actived = 1', 'LEFT')
 						      ->where($condition)
-						      // ->where("remark != 'DISSOLVED'")
 						      ->get($this->integrated .'.tblenrollmenttrans as enrolltrans')->result();
 		}
 
@@ -234,8 +234,8 @@ class Main_Model extends CI_Model {
 				'CONCAT(faculty.Lastname,", ",faculty.Firstname," ",faculty.Middlename) as faculty_name',
 				'studsched.*',
 				'IF(studexcluded_id IS NULL,"0","1") as is_excluded',
-				'sched.CFN as cfn',
 				'sched.remark',
+				'sched.CFN as cfn',
 				'sched.subcode as CourseCode',
 				'sched.subdes as CourseDesc',
 				'sched.sched_id',
