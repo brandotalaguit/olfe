@@ -1,0 +1,317 @@
+@-webkit-keyframes ld {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@-moz-keyframes ld {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@-o-keyframes ld {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes ld {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.no-js #loader { display: none;  }
+.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+.se-pre-con {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url(../../images/web_images/full_loading.gif) center no-repeat #fff;
+}
+
+.m-progress {
+  position: relative;
+  opacity: .8;
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+.m-progress:hover,
+.m-progress:active,
+.m-progress:focus {
+  cursor: default;
+  color: transparent;
+  outline: none !important;
+  box-shadow: none;
+}
+
+.m-progress:before {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  background: transparent;
+  border: 1px solid #fff;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+  width: 24px;
+  height: 24px;
+  -webkit-animation: ld 1s ease-in-out infinite;
+  -moz-animation:    ld 1s ease-in-out infinite;
+  -o-animation:      ld 1s ease-in-out infinite;
+  animation:         ld 1s ease-in-out infinite;
+}
+
+.timer_container{
+  z-index: 1000;
+  position: fixed;
+  background-color: transparent;
+  border-radius: 20px;
+  top: 10%;
+  left: 45%;
+  margin-top: -50px;
+  margin-left: -100px;
+  opacity: 0.8;
+}
+
+/*global styling*/
+body{
+	padding: 20px 0px;
+	font-family: calibri;
+	background-image:url(../../components/images/misc/umak-bg-v3.jpg);
+	background-position: bottom;
+	background-repeat: repeat-x;
+	background-color: #001231;
+	background-attachment: fixed;
+}
+.banner img{
+	max-width: 1140px;
+	margin-bottom: 10px;
+}
+
+hr{
+	border-style: dashed;
+	background-color:#aeaeae;
+}
+/*global styling*/
+
+/*typography*/
+h1,h2,h3,h4,h5,h6{
+}
+
+/*typography*/
+
+.student-login h1{
+	margin-top: 0;
+}
+
+/*content*/
+.input-group-addon{
+	max-width: 81px;
+}
+.student-verification hr,.director-login hr,.student-login hr, .administrator-login hr{
+	max-width: 400px;
+}
+.student-verification .panel,.director-login .panel, .administrator-login .panel,.student-login .panel{
+	max-width: 400px;
+	margin:auto auto;
+}
+.student-login .panel{
+    margin-top:20px;
+}
+.student-verification img{
+	margin-right: auto;
+	margin-left: auto;
+}
+.student-information .form-group{
+	margin-bottom: 0;
+}
+
+.student-information img, .professor-information img{
+	margin-right: 20px;
+}
+.student-information img, .professor-information img{
+	border: 5px solid #fff;
+	max-width: 150px;	
+}
+.student-information .form-group:last-child{
+    border-bottom: 0;
+}
+.student-information .form-group,.professor-information .form-group {
+    margin-bottom: 0;
+    border-bottom: 1px dashed #aeaeae;
+}
+.student-information h2{
+	margin-top: 0;
+	color:#fff;
+	border-bottom: 1px dotted #aeaeae;
+}
+.legend p.page-header{
+	color:#fff;
+	border-bottom:1px dotted #aeaeae;
+	font-weight: bold;
+	margin-top: 0;
+}
+.student-information .panel-body{
+	background-image: url(../../components/images/misc/gray.jpg);
+}
+.student-current-load p.page-header{
+	margin-top: 0;
+	color:#fff;
+	font-weight: bold;
+	border-bottom: 1px dotted #aeaeae;
+}
+.student-current-load .panel{
+	border:0;
+	border-bottom-right-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+.student-current-load .panel-body{
+	padding-top: 0;
+	padding-left: 0;
+	padding-right: 0;
+	background-image: url(../../components/images/misc/gray.jpg);
+}
+.student-current-load .panel-body th{
+	background-color: #333;
+	color:#fff;
+}
+
+.student-current-load .panel-footer{
+	border-bottom:solid 5px #333;
+	border-bottom-right-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+.professor-information h2{
+	margin-top: 0;
+	border-bottom: 1px dotted #aeaeae;
+	color:#fff;
+}
+.professor-information h3{
+	margin-top: 5px;
+}
+.professor-information .panel-body, .first-page .panel-body, .legend .panel-body, .feedback .panel-body{
+	background-image: url(../../components/images/misc/gray.jpg);
+
+}
+.feedback .panel-body{
+	border-bottom:5px solid #333;
+	border-bottom-left-radius:2px; 
+	border-bottom-right-radius:2px; 	
+}
+.feedback .panel{
+	border:0;
+	border-bottom-left-radius:2px; 
+	border-bottom-right-radius:2px; 
+}
+.fade-in-content{
+    opacity:0;
+}
+.feedback textarea{
+	max-width: 550px;
+    resize: none;
+}
+.student-login .panel, .administrator-login .panel{
+	border:10px solid #ddd;
+}
+
+
+.student-verification .panel-heading,.administrator-login .panel-heading, .student-login .panel-heading{
+	background-color: #333;
+	color:#fff;
+	background-image: url(../../components/images/misc/panel-heading-bg.png);
+	border-bottom: 1px dotted #aeaeae;
+}
+.student-verification .panel, .administrator-login .panel, .student-login .panel{
+	border:0;
+	background-image: url(../../components/images/misc/gray.jpg);
+	border-radius: 8px;
+}
+.student-verification img{
+	border: 5px solid #fff;
+	max-width: 150px;
+	margin-bottom: 10px;
+}
+
+.student-verification .panel-footer, .administrator-login .panel-footer, .student-login .panel-footer{
+	border-bottom: 10px solid #333;
+	border-radius: 5px;
+}
+/*content*/
+
+/*navbar*/
+.navbar-default {
+  background-color: transparent;
+  border:0;
+  border-bottom: 1px dotted #aeaeae;
+}
+.navbar-default .navbar-brand {
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #fff;
+  background-color: transparent;
+}
+.navbar-default .navbar-text {
+  color: #fff;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #777;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #333;
+  background-color: transparent;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #555;
+  background-color: #e7e7e7;
+}
+.navbar-default .navbar-nav > .disabled > a,
+.navbar-default .navbar-nav > .disabled > a:hover,
+.navbar-default .navbar-nav > .disabled > a:focus {
+  color: #ccc;
+  background-color: transparent;
+}
+.navbar-default .navbar-toggle {
+  border-color: #ddd;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #ddd;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #888;
+}
+
+
+/*navbar*/
+/*footer*/
+footer h3.page-header{
+	margin-top: 0;
+	border-bottom:1px dotted #aeaeae;
+}
+footer{
+	background-color: #333;
+	clear:both;
+	color:#fff;
+	border-top:1px dotted #aeaeae;
+	padding: 0.8em;
+}
+footer .right-column p{
+	line-height: 1.5em;
+}
+/*footer*/
