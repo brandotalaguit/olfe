@@ -685,8 +685,11 @@ class Main_Model extends CI_Model {
 		$this->db->update('tblstudfevallogin',$update_logout);
 	}
 
-	public function update_login($StudNo=null)
+	public function update_login($StudNo=null,$ITC)
 	{
+		$IsITC = 0;
+		if ($ITC == "ITC") 
+			$IsITC = 1;
 
 		$this->db->select('count(*) as  cnt',FALSE);
 		$count = $this->db->where(array('StudNo'=>$StudNo))->get('tblstudfevallogin')->row();
@@ -695,6 +698,7 @@ class Main_Model extends CI_Model {
 							'StudNo' =>$StudNo,
 							'IsLogin' =>1,
 							'LoginTime' => date('Y-m-d H:i'),
+							'IsITC' => $IsITC
 						 );
 		if ($count->cnt >= 1)
 		{
