@@ -16,7 +16,7 @@ class Student extends CI_Controller {
 
 
         $uri = $this->uri->segment(2,0);
-        if (($uri != 0 || $uri != 'index') && ($uri != 'validate_verification_code') )
+        if (($uri != 0 || $uri != 'index') && ($uri != 'validate_verification_code') && ($uri != 'itc'))
         {
 
             //force logout
@@ -25,13 +25,155 @@ class Student extends CI_Controller {
             $this->logout();
         }
 
-        $this->output->enable_profiler(TRUE);
+        // $this->output->enable_profiler(TRUE);
     }
 
     public function index()
     {
-        $uri_itc = $this->uri->segment(3,0);
-        $added_uri = "";
+        if( (bool) $this->session->userdata('loggedin'))
+        {
+            redirect(base_url('student/current_load'));
+        }
+
+        if(isset($_POST['btn_login']))
+        {
+            // setup validation rules
+            $rules = array(
+                array('field' => 'Email','label' => 'Email Account','rules' => 'trim|xss_clean|required|callback__validate_student')
+            );
+            if (ENVIRONMENT == 'production')
+            {
+                $rules[] = array('field' => 'captcha','label' => 'Captcha','rules' => 'trim|xss_clean|required|callback__validate_captcha');
+            }
+            // add validation rules
+            $this->form_validation->set_rules($rules);
+
+            if ($this->form_validation->run())
+            {
+                $email_account = $this->input->post('Email');
+
+                $this->db->where(array('Email'=>$email_account));
+                // $this->db->where(array('StudNo'=>"K1124762"));
+                $valid_email = $this->db->get('tblstudemailaccount')->row();
+
+                $current_sysem = $this->main_model->get_current_sysem();
+                $studevaluation = $this->db->where(array(
+                                                    'SyId' => $current_sysem->SyId,
+                                                    'SemId' => $current_sysem->SemId,
+                                                    'StudNo' => $valid_email->StudNo,
+                                                    'IsEvaluated' => 1
+                                                ))->get('tblstudevaluation')->row();
+
+                if(count($studevaluation))
+                {
+                    $this->session->set_flashdata('error', 'Unable to process your request, You have already finished the faculty evaluation.');
+                    redirect('student','refresh');
+                }
+
+                $StudNo = $valid_email->StudNo;
+                $Email = $valid_email->Email;
+
+                $StudentName = $this->session->userdata('StudentName');
+                $random_verification_code =  random_string('alnum', 8);
+
+                $this->db->insert('tblstudverificationcode', array(
+                                                        'StudNo' => $valid_email->StudNo,
+                                                        'verificationcode' => $random_verification_code,
+                                                        'SyId' => $current_sysem->SyId,
+                                                        'SemId' => $current_sysem->SemId,
+                                                        'created_at' => date('Y-m-d H:i:s'),
+                                                    ));
+
+                $this->main_model->add_studentlogs($StudNo, 'Send verification code to : '.$Email);
+
+                $date = date('F j, Y H:i a');
+
+                if(ENVIRONMENT == 'production')
+                {
+                    $message = "{$date}
+                                <br><br>
+                                Hi! {$StudentName},
+                                <br><br>
+                                Please click <a href='https://umak.edu.ph/olfe/student/validate_verification_code/{$random_verification_code}'>here</a> to start the Umak Online Faculty Evaluation
+                                <br><br>
+                                This is a computer generated email messages. Do no reply to this email.
+                                <br><br>
+                                Thank you.
+                                <br><br>
+                                <i>Data as of {$date}</i>";
+                }
+                else
+                {
+                    $message = "{$date}
+                                <br><br>
+                                Hi! {$StudentName},
+                                <br><br>
+                                Please click <a href='http://test.umak.edu.ph/olfe/student/validate_verification_code/{$random_verification_code}'>here</a> to start the Umak Online Faculty Evaluation
+                                <br><br>
+                                This is a computer generated email messages. Do no reply to this email.
+                                <br><br>
+                                Thank you.
+                                <br><br>
+                                <i>Data as of {$date}</i>";
+                }
+
+
+                $this->send_verification($Email, $message);
+                $this->session->set_flashdata('message', 'We have already sent a verfication code to this email '. '<i>'.$Email.', please login your gmail account to start the faculty evaluation.</i>');
+                $this->session->set_userdata('VerificationCode',$random_verification_code);
+
+                redirect('student','refresh');
+            }
+
+        }
+
+        $this->load->helper('captcha');
+
+        $random_captcha =  strtoupper(random_string('alnum', 8));
+        $actived_user = $this->main_model->count_login();
+        $this->db->where('evaluationdate_id',5);
+        $evaluation_period = $this->db->get('tblevaluationdate')->row();
+        $IsClosed = FALSE;
+
+        $date_start = date('F j, Y',strtotime($evaluation_period->date_start));
+        $date_end = date('F j, Y',strtotime($evaluation_period->date_end));
+        $date_now = $this->now;
+
+        $time_start = $this->time_start;
+        $time_end = $this->time_end;
+        $time_now = date('G:i:s');
+
+        $is_ongoing = $this->db->query("select * from tblevaluationdate where '{$date_now}' between date_start and date_end")->row();
+
+
+        if( (! count($is_ongoing)) || (!(strtotime($time_now) > strtotime($time_start) && strtotime($time_now) < strtotime($time_end))))
+            $IsClosed = TRUE;
+
+        // setting up captcha config
+        $vals = array(
+                'word' => $random_captcha,
+                'img_path' => './captcha/',
+                'img_url' => base_url().'captcha/',
+                'img_width' => 300,
+                'img_height' => 50,
+            );
+
+
+        $data['captcha'] = create_captcha($vals);
+        $data['time_start'] = $this->time_start;
+        $data['time_end'] = $this->time_end;
+        $data['date_start'] = $date_start;
+        $data['date_end'] = $date_end;
+        $data['IsClosed'] = $IsClosed;
+        $data['actived_user'] = $actived_user;
+        $this->session->set_userdata('captcha_word',$random_captcha);
+
+        $this->load->view('student/student-login',$data);
+    }
+
+    public function itc()
+    {
+        $added_uri = "ITC";
 
         if( (bool) $this->session->userdata('loggedin'))
         {
@@ -91,9 +233,6 @@ class Student extends CI_Controller {
 
                 $date = date('F j, Y H:i a');
 
-                if ($uri_itc == "ITC")
-                    $added_uri = "ITC";
-
                 if(ENVIRONMENT == 'production')
                 {
                     $message = "{$date}
@@ -128,7 +267,7 @@ class Student extends CI_Controller {
                 $this->session->set_flashdata('message', 'We have already sent a verfication code to this email '. '<i>'.$Email.', please login your gmail account to start the faculty evaluation.</i>');
                 $this->session->set_userdata('VerificationCode',$random_verification_code);
 
-                redirect('student','refresh');
+                redirect('student/itc','refresh');
             }
 
         }
@@ -230,6 +369,7 @@ class Student extends CI_Controller {
         $loggedin = FALSE;
         $Email = $this->input->post('Email', TRUE);
 
+        $this->db->where('evaluationdate_id',5);
         $evaluation_period = $this->db->get('tblevaluationdate')->row();
 
         $current_date = date('Y-m-d');
@@ -254,7 +394,7 @@ class Student extends CI_Controller {
 
 
         // $this->db->where(array('Email'=>$Email));
-        $this->db->where(array('StudNo'=>$Email));
+        $this->db->where(array('Email'=>$Email));
         $valid_email = $this->db->get('tblstudemailaccount')->row();
 
         if( ! count($valid_email) )
@@ -308,8 +448,10 @@ class Student extends CI_Controller {
         return TRUE;
     }
 
+
     public function validate_verification_code($verification_code)
     {
+        $ITC = $this->uri->segment(4,"outside");
         $evaluation_period = $this->db->get('tblevaluationdate')->row();
 
         $current_date = date('Y-m-d');
@@ -367,11 +509,11 @@ class Student extends CI_Controller {
                 );
                 $this->db->insert('tblstudevaluation',$studeval);
             }
-            $this->main_model->update_login($StudNo);
+            $this->main_model->update_login($StudNo,$ITC);
             $this->session->set_userdata('loggedin', TRUE);
             $this->session->set_flashdata('valid_email_code', TRUE);
             // $this->db->query('update tblevaluationdate set max_users = max_users+1');
-            $this->main_model->add_studentlogs($StudNo, 'Student login success.');
+            $this->main_model->add_studentlogs($StudNo, 'Student login success. '.$ITC);
 
             $data = array(
                         'StudNo' => $StudNo,
@@ -380,7 +522,8 @@ class Student extends CI_Controller {
                         'created_at' => date('Y-m-d H:i:s'),
                     );
 
-            $this->main_model->update_login($StudNo);
+
+            // $this->main_model->update_login($StudNo,$ITC);
 
             // $studentlogin_id = $this->loginout('LOGIN', $data);
 
@@ -516,11 +659,12 @@ class Student extends CI_Controller {
         $sched_id = intval($sched_id);
         $sched = $this->main_model->get_schedule($sched_id, TRUE);
 
-        if (empty($sched)) {
+        if (empty($sched))
+        {
             $this->session->set_flashdata('error', "Unable to process request, Subject does not exists.");
             redirect(base_url('student/current_load'));
         }
-        // die(dump($sched));
+
         if (!empty($sched->remark))
         {
             if ($sched->remark == 'DISSOLVED')
@@ -529,6 +673,7 @@ class Student extends CI_Controller {
                 redirect(base_url('student/current_load'));
             }
         }
+
 
         $cfn = $sched->cfn;
         $faculty_id = $sched->faculty_id;
@@ -893,20 +1038,18 @@ class Student extends CI_Controller {
         }
 
         $this->main_model->add_studentlogs($this->session->userdata('StudNo'), 'Logout student');
-        // $this->db->query('update tblevaluationdate set max_users = max_users-1');
-        $this->session->set_flashdata('message', $message);
-
-        $data = array(
-                'timelogout' => date('Y-m-d H:i:s'),
-                'isloggedin' => 0,
-            );
-
         $StudNo = $this->session->userdata('StudNo');
         $this->main_model->update_logout_r($StudNo);
+        $lastLoc = $this->db->get_where('tblstudfevallogin',array('StudNo'=>$StudNo))->row();
         // $this->loginout('LOGOUT' ,$data, $this->session->userdata('studentlogin_id'));
 
         $this->session->unset_userdata('loggedin');
         $this->session->unset_userdata('studentlogin_id');
+
+        //get last location
+        if ($lastLoc->IsITC == 1) 
+            redirect("student/itc",'refresh');
+       
         redirect("student",'refresh');
     }
 
@@ -917,7 +1060,5 @@ class Student extends CI_Controller {
         $data['studcourseeval_count'] = count($this->main_model->get_course_evaluated($StudNo));
         $this->load->view('student/logout_modal.php',$data);
     }
-
-
 
 }
